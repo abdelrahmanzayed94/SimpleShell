@@ -5,6 +5,7 @@ This simple shell provides the following features:
 * printing the available local variables using "set" command
 * exporting the local variables to the environment variables using "export" command
 * exit the simple shell using "exit" command
+* input (<), output (>) and error (2>) redirections
 
 command used for compilation:
 ```
