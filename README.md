@@ -1,5 +1,6 @@
 # Simple Shell for Simple People
 This simple shell provides the following features:
+* printing user and working dirctory details in the prompt
 * compatibility with linux utilities (ls, pwd, cp, mv, rm, ...)
 * setting new local variables (for example, "x=5") besides overwriting them if already found
 * printing the available local variables using "set" command
@@ -16,9 +17,9 @@ run example:
 ```
 wizo@wizo:~/workarea/SimpleShell$ gcc simpleshell.c -o simpleshell
 wizo@wizo:~/workarea/SimpleShell$ ./simpleshell 
-user@pc:~$ ls
+wizo@wizo:/home/wizo/workarea/SimpleShell$ ls
 simpleshell  simpleshell.c  simpleshell.c.bak
-user@pc:~$ ls -l /
+wizo@wizo:/home/wizo/workarea/SimpleShell$ ls -l /
 total 2097232
 lrwxrwxrwx   1 root root          7 Sep 10 12:53 bin -> usr/bin
 drwxr-xr-x   4 root root       4096 Oct  8 14:04 boot
@@ -45,25 +46,25 @@ dr-xr-xr-x  13 root root          0 Oct  8 13:51 sys
 drwxrwxrwt  20 root root       4096 Oct  8 15:05 tmp
 drwxr-xr-x  14 root root       4096 Feb 23  2022 usr
 drwxr-xr-x  14 root root       4096 Feb 23  2022 var
-user@pc:~$ pwd
+wizo@wizo:/home/wizo/workarea/SimpleShell$ pwd
 /home/wizo/workarea/SimpleShell
-user@pc:~$ echo Hello From Simple Shell
+wizo@wizo:/home/wizo/workarea/SimpleShell$ echo Hello From Simple Shell
 Hello From Simple Shell
-user@pc:~$ x=10
-user@pc:~$ set
+wizo@wizo:/home/wizo/workarea/SimpleShell$ x=10
+wizo@wizo:/home/wizo/workarea/SimpleShell$ set
 local variable[0]: x = 10
-user@pc:~$ y=15
-user@pc:~$ set
+wizo@wizo:/home/wizo/workarea/SimpleShell$ y=15
+wizo@wizo:/home/wizo/workarea/SimpleShell$ set
 local variable[0]: x = 10
 local variable[1]: y = 15
-user@pc:~$ export x
-user@pc:~$ env
+wizo@wizo:/home/wizo/workarea/SimpleShell$ export x
+wizo@wizo:/home/wizo/workarea/SimpleShell$ env
 SHELL=/bin/bash
 ...
 x=10
-user@pc:~$ 
-user@pc:~$ ls -l / > output
-user@pc:~$ cat output
+wizo@wizo:/home/wizo/workarea/SimpleShell$ 
+wizo@wizo:/home/wizo/workarea/SimpleShell$ ls -l / > output
+wizo@wizo:/home/wizo/workarea/SimpleShell$ cat output
 total 2097232
 lrwxrwxrwx   1 root root          7 Sep 10 12:53 bin -> usr/bin
 drwxr-xr-x   4 root root       4096 Oct 10 21:30 boot
@@ -90,13 +91,13 @@ dr-xr-xr-x  13 root root          0 Oct 10 21:15 sys
 drwxrwxrwt  20 root root       4096 Oct 10 22:50 tmp
 drwxr-xr-x  14 root root       4096 Feb 23  2022 usr
 drwxr-xr-x  14 root root       4096 Feb 23  2022 var
-user@pc:~$ ls - 2> error
-user@pc:~$ cat error
+wizo@wizo:/home/wizo/workarea/SimpleShell$ ls - 2> error
+wizo@wizo:/home/wizo/workarea/SimpleShell$ cat error
 ls: cannot access '-': No such file or directory
-user@pc:~$ echo hello world > input
-user@pc:~$ cat < input
+wizo@wizo:/home/wizo/workarea/SimpleShell$ echo hello world > input
+wizo@wizo:/home/wizo/workarea/SimpleShell$ cat < input
 hello world
-user@pc:~$
-user@pc:~$ exit
+wizo@wizo:/home/wizo/workarea/SimpleShell$
+wizo@wizo:/home/wizo/workarea/SimpleShell$ exit
 wizo@wizo:~/workarea/SimpleShell$ 
 ```
