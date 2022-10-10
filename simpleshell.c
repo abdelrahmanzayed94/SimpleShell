@@ -8,11 +8,12 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/types.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 
 #define INPUT_CMD       0
 #define INPUT_VAR       1
@@ -59,8 +60,6 @@ char **simple_tokenizer(char *buf, int buf_len, int *status)
 					*status = INPUT_VAR;
 			}	
 		} else {
-			// printf("str_count = %d, char_count = %d\n", str_count,
-			// char_count);
 			buf_parsed[str_count][char_count] = buf[i];
 			char_count++;
 			cont_spaces_flag = 0;
@@ -141,14 +140,14 @@ int main()
 			
 			if(argv[1] == NULL)
 			{
-				printf("Error: too few arguments!!\n");
+				fprintf(stderr, "error: too few arguments!!\n");
 			}
 			else
 			{
 				int index = search_across_local_var(argv[1]);
 				if(index == -1)
 				{
-					printf("Error: variable %s is not found!!\n", argv[1]);
+					fprintf(stderr, "error: variable %s is not found!!\n", argv[1]);
 				}
 				else
 				{
@@ -161,7 +160,7 @@ int main()
 		else if (input_status == INPUT_VAR) {
 			if(argv[1] == NULL)
 			{
-				printf("Error: too few arguments!!\n");
+				fprintf(stderr, "error: too few arguments!!\n");
 			}
 			else
 			{
@@ -185,7 +184,7 @@ int main()
 		else if (input_status == INPUT_CMD) {
 			int pid = fork();
 			if (pid == -1) {
-				printf("fork error number %d!!\n", errno);
+				fprintf(stderr, "error: fork error number %d!!\n", errno);
 			} else if (pid == 0) {
 				// Child process
 
@@ -194,19 +193,106 @@ int main()
 				// kill(0, SIGKILL);
 				// }
 				
+				for(int i = 0; argv[i] != NULL; i++)
+				{
+					if(!strcmp("<", argv[i]))
+					{
+						//printf("input redirection\n");
+						if(argv[i+1] == NULL)
+						{
+							fprintf(stderr, "error: no input file is defined!!\n");
+							goto funcExit;
+						}
+						
+						int inFD  = open(argv[i+1], O_RDONLY);
+						
+						if(inFD == -1)
+						{
+							switch(errno)
+							{
+								case ENOENT:
+									fprintf(stderr, "error: file \"%s\" does not exist!!\n", argv[i+1]);
+									break;
+								default:
+									fprintf(stderr, "error number %d occured in opening input file\n", errno);
+									break;
+							}
+
+							goto funcExit;
+						}
+						
+						int inRet = dup2(inFD, 0 /*input stream*/);
+						close(inFD);
+						
+						argv[i++] = NULL;
+						argv[i] = NULL;
+					}					
+					else if(!strcmp(">", argv[i]))
+					{
+						//printf("output redirection\n");
+						if(argv[i+1] == NULL)
+						{
+							fprintf(stderr, "error: no output file is defined!!\n");
+							goto funcExit;
+						}
+						
+						int outFD  = open(argv[i+1], O_CREAT|O_WRONLY|O_TRUNC, 0644);
+						
+						if(outFD == -1)
+						{
+							fprintf(stderr, "error number %d occured in opening or creating output file\n", errno);
+							goto funcExit;
+						}
+						
+						int outRet = dup2(outFD, 1 /*output stream*/);
+						close(outFD);
+						
+						argv[i++] = NULL;
+						argv[i] = NULL;
+					}					
+					else if(!strcmp("2>", argv[i]))
+					{
+						//printf("error redirection\n");			
+						if(argv[i+1] == NULL)
+						{
+							fprintf(stderr, "error: no error file is defined\n");
+							goto funcExit;
+						}
+						
+						int errFD  = open(argv[i+1], O_CREAT|O_WRONLY|O_TRUNC, 0644);
+						
+						if(errFD == -1)
+						{
+							fprintf(stderr, "error number %d occured in opening or creating error file\n", errno);
+							goto funcExit;
+						}
+						
+						int errRet = dup2(errFD, 2 /*error stream*/);
+						close(errFD);
+						
+						argv[i++] = NULL;
+						argv[i] = NULL;
+					}
+					else
+					{
+						//Do Nothing
+					}
+				}				
+				
 				// execve(buf, argv, environ);
 				execvp(argv[0], argv);
 
 				//failure case of execve
 				switch (errno) {
 				case ENOENT:
-					printf("Command not found!!\n");
+					fprintf(stderr, "error: command not found!!\n");
 					break;
 				default:
-					printf("execve error number %d!!\n", errno);
+					fprintf(stderr, "error: execve error number %d!!\n", errno);
 					break;
 				}
 				
+			funcExit:
 				//terminate the child process
 				_exit(EXIT_FAILURE);
 				
