@@ -105,10 +105,22 @@ int main()
 	char exportCmd[] = "export";
 	int argc = 0;
 	char **argv;
+		
+	char hostname[20] = "pc";
+	gethostname(hostname, 20);	
+	char pwd[50] = "~";
+	getcwd(pwd, 50);
+	
+	char username[20] = "user";
+	for(int i = 0; environ[i] != NULL; i++)
+	{
+		if(!strncmp("USERNAME=", environ[i], 9))
+			strcpy(username, &environ[i][9]);
+	}
 
 	while (1) {
 		//printing the default prompt for the user
-		printf("user@pc:~$ ");
+		printf("%s@%s:%s$ ", username, hostname, pwd);
 		//getting the input commands
 		fgets(buf, 256, stdin);
 
