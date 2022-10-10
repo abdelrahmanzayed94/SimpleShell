@@ -2,7 +2,7 @@
 This simple shell provides the following features:
 * printing user and working dirctory details in the prompt
 * compatibility with linux utilities (ls, pwd, cp, mv, rm, ...)
-* setting new local variables (for example, "x=5") besides overwriting them if already found
+* setting new unlimited local variables (for example, "x=5") besides overwriting them if already found
 * printing the available local variables using "set" command
 * exporting the local variables to the environment variables using "export" command
 * exit the simple shell using "exit" command
