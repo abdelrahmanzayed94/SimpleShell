@@ -20,10 +20,6 @@
 
 extern char **environ;
 
-char local_var_name[100][20];
-char local_var_value[100][20];
-int local_var_count = 0;
-
 /*
  * function to split the input buffer into tokens using space ' ' and equal '=' delimiters
  * returns the tokens in arrays of strings, shall be freed after usage
@@ -80,7 +76,7 @@ char **simple_tokenizer(char *buf, int buf_len, int *status)
  * function to search for input variable across the local variables in local_var_name[]
  * if found return index of the local variable, otherwise return -1
  */
-int search_across_local_var(char *var)
+int search_across_local_var(char** local_var_name, int local_var_count, char *var)
 {
 	int index = -1;
 
@@ -89,6 +85,7 @@ int search_across_local_var(char *var)
 		if(!strcmp(local_var_name[i], var))
 		{
 			index = i;
+			break;
 		}
 	}
 	
@@ -105,11 +102,18 @@ int main()
 	char exportCmd[] = "export";
 	int argc = 0;
 	char **argv;
+	
+	//local variables data base
+	int local_var_count = 1; //indicates extra variable
+	char** local_var_name = malloc(local_var_count * sizeof(char*));
+	local_var_name[local_var_count - 1] = malloc(100 * sizeof(char));
+	char** local_var_value = malloc(local_var_count * sizeof(char*));
+	local_var_value[local_var_count - 1] = malloc(100 * sizeof(char));
 		
 	char hostname[20] = "pc";
 	gethostname(hostname, 20);	
-	char pwd[50] = "~";
-	getcwd(pwd, 50);
+	char pwd[100] = "~";
+	getcwd(pwd, 100);
 	
 	char username[20] = "user";
 	for(int i = 0; environ[i] != NULL; i++)
@@ -138,7 +142,7 @@ int main()
 		}
 		//print the availavble local variable if "set" command is detected
 		else if (!strcmp(setCmd, buf)) {
-			for (int i = 0; i < local_var_count; i++) {
+			for (int i = 0; i < local_var_count - 1; i++) {
 				printf("local variable[%d]: %s = %s\n", i, local_var_name[i], local_var_value[i]);
 			}
 			continue;
@@ -156,7 +160,7 @@ int main()
 			}
 			else
 			{
-				int index = search_across_local_var(argv[1]);
+				int index = search_across_local_var(local_var_name, local_var_count - 1, argv[1]);
 				if(index == -1)
 				{
 					fprintf(stderr, "error: variable %s is not found!!\n", argv[1]);
@@ -176,12 +180,16 @@ int main()
 			}
 			else
 			{
-				int index = search_across_local_var(argv[0]);		
+				int index = search_across_local_var(local_var_name, local_var_count - 1, argv[0]);		
 				if(index == -1)
 				{
 					//new variable
-					strcpy(local_var_name[local_var_count], argv[0]);
-					strcpy(local_var_value[local_var_count], argv[1]);
+					strcpy(local_var_name[local_var_count - 1], argv[0]);
+					strcpy(local_var_value[local_var_count - 1], argv[1]);
+				   	local_var_name = realloc(local_var_name, (local_var_count + 1) * sizeof(char*));
+				        local_var_value = realloc(local_var_value, (local_var_count + 1) * sizeof(char*));
+				        local_var_name[local_var_count] = malloc(100 * sizeof(char));
+				        local_var_value[local_var_count] = malloc(100 * sizeof(char));
 					local_var_count++;
 				}
 				else
