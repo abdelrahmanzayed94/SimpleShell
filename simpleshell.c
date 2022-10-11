@@ -244,7 +244,9 @@ int main()
 						int inRet = dup2(inFD, 0 /*input stream*/);
 						close(inFD);
 						
+						free(argv[i]);
 						argv[i++] = NULL;
+						free(argv[i]);
 						argv[i] = NULL;
 					}					
 					else if(!strcmp(">", argv[i]))
@@ -267,7 +269,9 @@ int main()
 						int outRet = dup2(outFD, 1 /*output stream*/);
 						close(outFD);
 						
+						free(argv[i]);
 						argv[i++] = NULL;
+						free(argv[i]);
 						argv[i] = NULL;
 					}					
 					else if(!strcmp("2>", argv[i]))
@@ -290,7 +294,9 @@ int main()
 						int errRet = dup2(errFD, 2 /*error stream*/);
 						close(errFD);
 						
+						free(argv[i]);
 						argv[i++] = NULL;
+						free(argv[i]);
 						argv[i] = NULL;
 					}
 					else
@@ -322,8 +328,19 @@ int main()
 			}
 		}
 		
+		for(int i = 0; argv[i] != NULL; i++)
+			free(argv[i]);
 		free(argv);
 	}
+	
+	for(int i = 0; i < local_var_count; i++)
+	{
+		free(local_var_name[i]);
+		free(local_var_value[i]);
+	}
+	
+	free(local_var_name);
+	free(local_var_value);
 
 	return 0;
 }
